@@ -1,0 +1,42 @@
+ ***Diagrama de Entidad-Relación (ER)***
+
+***Cliente***
+id_cliente (PK)
+nombre
+tipo_cliente
+direccion
+telefono
+email
+
+***Edificio***
+id_edificio (PK)
+direccion
+id_cliente (FK)
+
+***Medidor***
+id_medidor (PK)
+id_edificio (FK)
+
+***Lectura***
+id_lectura (PK)
+id_medidor (FK)
+fecha_lectura
+lectura_inicial
+lectura_final
+
+***Factura***
+id_factura (PK)
+id_cliente (FK)
+fecha_emision
+fecha_vencimiento
+total_a_pagar
+estado_pago
+
+***Tarifa***
+id_tarifa (PK)
+tipo_cliente
+monto_por_kwh
+cargo_alumbrado_publico
+ajuste_por_combustible
+cargo_comercializacion
+perdidas_por_transformacion
