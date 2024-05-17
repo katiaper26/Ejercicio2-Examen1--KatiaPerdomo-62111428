@@ -1,0 +1,104 @@
+****Comandos de Imagen de Docker****
+# Imagen de PostgreSQL
+docker pull postgres:latest
+
+# Crear y ejecutar un contenedor PostgreSQL
+docker run --name facturacion-energia-db -e POSTGRES_PASSWORD=yourpassword -d postgres
+
+# Conectarse al contenedor PostgreSQL
+docker exec -it facturacion-energia-db psql -U postgres
+
+****Script SQL con DDL y DML****
+-- Crear esquema
+CREATE SCHEMA facturacion_energia;
+
+-- Crear tabla Cliente
+CREATE TABLE facturacion_energia.cliente (
+    id_cliente SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    tipo_cliente VARCHAR(50) NOT NULL,
+    direccion VARCHAR(200),
+    telefono VARCHAR(20),
+    email VARCHAR(100)
+);
+
+-- Crear tabla Edificio
+CREATE TABLE facturacion_energia.edificio (
+    id_edificio SERIAL PRIMARY KEY,
+    direccion VARCHAR(200) NOT NULL,
+    id_cliente INT REFERENCES facturacion_energia.cliente(id_cliente)
+);
+
+-- Crear tabla Medidor
+CREATE TABLE facturacion_energia.medidor (
+    id_medidor SERIAL PRIMARY KEY,
+    id_edificio INT REFERENCES facturacion_energia.edificio(id_edificio)
+);
+
+-- Crear tabla Lectura
+CREATE TABLE facturacion_energia.lectura (
+    id_lectura SERIAL PRIMARY KEY,
+    id_medidor INT REFERENCES facturacion_energia.medidor(id_medidor),
+    fecha_lectura DATE NOT NULL,
+    lectura_inicial DECIMAL(10, 2) NOT NULL,
+    lectura_final DECIMAL(10, 2) NOT NULL
+);
+
+-- Crear tabla Factura
+CREATE TABLE facturacion_energia.factura (
+    id_factura SERIAL PRIMARY KEY,
+    id_cliente INT REFERENCES facturacion_energia.cliente(id_cliente),
+    fecha_emision DATE NOT NULL,
+    fecha_vencimiento DATE NOT NULL,
+    total_a_pagar DECIMAL(10, 2) NOT NULL,
+    estado_pago VARCHAR(50) NOT NULL
+);
+
+-- Crear tabla Tarifa
+CREATE TABLE facturacion_energia.tarifa (
+    id_tarifa SERIAL PRIMARY KEY,
+    tipo_cliente VARCHAR(50) NOT NULL,
+    monto_por_kwh DECIMAL(10, 2) NOT NULL,
+    cargo_alumbrado_publico DECIMAL(10, 2) NOT NULL,
+    ajuste_por_combustible DECIMAL(10, 2) NOT NULL,
+    cargo_comercializacion DECIMAL(10, 2) NOT NULL,
+    perdidas_por_transformacion DECIMAL(10, 2) NOT NULL
+);
+
+-- Insertar datos de ejemplo en Tarifa
+INSERT INTO facturacion_energia.tarifa (tipo_cliente, monto_por_kwh, cargo_alumbrado_publico, ajuste_por_combustible, cargo_comercializacion, perdidas_por_transformacion)
+VALUES
+('bajo consumidor', 0.10, 2.00, 1.50, 3.00, 0.50),
+('medio consumidor', 0.15, 3.00, 2.00, 4.00, 1.00),
+('alto consumidor', 0.20, 5.00, 3.00, 5.00, 2.00);
+
+-- Insertar datos de ejemplo en Cliente
+INSERT INTO facturacion_energia.cliente (nombre, tipo_cliente, direccion, telefono, email)
+VALUES
+('Cliente A', 'bajo consumidor', 'Direccion A', '123456789', 'clienteA@example.com'),
+('Cliente B', 'medio consumidor', 'Direccion B', '987654321', 'clienteB@example.com');
+
+-- Insertar datos de ejemplo en Edificio
+INSERT INTO facturacion_energia.edificio (direccion, id_cliente)
+VALUES
+('Direccion Edificio A', 1),
+('Direccion Edificio B', 2);
+
+-- Insertar datos de ejemplo en Medidor
+INSERT INTO facturacion_energia.medidor (id_edificio)
+VALUES
+(1),
+(2);
+
+-- Insertar datos de ejemplo en Lectura
+INSERT INTO facturacion_energia.lectura (id_medidor, fecha_lectura, lectura_inicial, lectura_final)
+VALUES
+(1, '2024-05-01', 100.0, 150.0),
+(2, '2024-05-01', 200.0, 250.0);
+
+-- Insertar datos de ejemplo en Factura
+INSERT INTO facturacion_energia.factura (id_cliente, fecha_emision, fecha_vencimiento, total_a_pagar, estado_pago)
+VALUES
+(1, '2024-05-02', '2024-05-30', 100.0, 'pendiente'),
+(2, '2024-05-02', '2024-05-30', 200.0, 'pendiente');
+
